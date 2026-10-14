@@ -34,6 +34,12 @@
     <div id="view"></div>
   </main>
 
+  <!-- Vendored libraries loaded as classic globals so pages/components can use
+       `L` (Leaflet) and `Chart` (Chart.js). Primary offline-safe copies under
+       /vendor/. If either fails to load, the owning component degrades to its
+       fallback (map fallback card / 'Chart library unavailable' block). -->
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="vendor/chart/chart.umd.js"></script>
   <script type="module" src="js/app.js"></script>
 </body>
 </html>
