@@ -1,0 +1,303 @@
+/* Middelburg Pharmaceutical Facility BMS Dashboard — single stylesheet.
+   Design tokens, shell layout, components, pages, responsive, print.
+   Flat colours only: no gradients, no backdrop-filter, no glow,
+   no box-shadow beyond the single --shadow-card hairline (AC-10). */
+
+/* ===== 3.1 Palette tokens (exact hex, AC-9) ===== */
+:root {
+  --bg:         #F6F8F6;  /* primary background           */
+  --card:       #FFFFFF;  /* card/surface background      */
+  --green:      #205C45;  /* primary accent               */
+  --green-dark: #173D30;  /* dark green (headers/active)  */
+  --teal:       #4F8275;  /* secondary accent             */
+  --text:       #202923;  /* main text                    */
+  --text-muted: #6B756E;  /* secondary text               */
+  --border:     #E1E7E2;  /* borders/dividers             */
+  --amber:      #B7791F;  /* warning                      */
+  --red:        #B42332;  /* critical                     */
+  --success:    #287A50;  /* success/normal confirmation  */
+
+  /* ===== 3.2 Status soft backgrounds (flat, pre-mixed hex) ===== */
+  --soft-normal:   #E7F2EC;
+  --soft-warning:  #FBF2E3;
+  --soft-critical: #F7E3E5;
+  --soft-unknown:  #EEF1EF;
+
+  /* ===== 3.3 Spacing scale (4px base) ===== */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px; --sp-7:48px;
+  /* radii */
+  --r-sm:4px; --r-md:8px; --r-lg:12px; --r-pill:999px;
+  /* elevation — single subtle hairline only (AC-10) */
+  --shadow-card: 0 1px 2px rgba(32,41,35,0.06);
+  /* typography */
+  --font-sans: 'Inter','Manrope',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --fs-xs:12px; --fs-sm:13px; --fs-md:15px; --fs-lg:18px; --fs-xl:22px; --fs-2xl:28px;
+  --lh-tight:1.25; --lh-base:1.5;
+  --fw-regular:400; --fw-medium:500; --fw-semibold:600; --fw-bold:700;
+  /* icon sizing */
+  --icon-sm:16px; --icon-md:20px; --icon-lg:24px;
+  /* layout */
+  --sidebar-w:248px; --sidebar-w-collapsed:64px; --header-h:64px; --content-max:1440px;
+}
+
+/* ===== Reset / base ===== */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  line-height: var(--lh-base);
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--green); }
+button { font-family: inherit; }
+h1, h2, h3, h4 { margin: 0; line-height: var(--lh-tight); color: var(--text); }
+
+/* ===== Shell layout ===== */
+.app-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: 0 var(--sp-5);
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  z-index: 1000;
+}
+.hdr-left, .hdr-right { display: flex; align-items: center; gap: var(--sp-4); }
+.hdr-right { gap: var(--sp-3); flex-wrap: wrap; justify-content: flex-end; }
+
+.hdr-identity { display: flex; flex-direction: column; line-height: 1.2; }
+.hdr-facility { font-weight: var(--fw-semibold); font-size: var(--fs-md); color: var(--green-dark); }
+.hdr-location { font-size: var(--fs-xs); color: var(--text-muted); }
+
+.hdr-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 4px var(--sp-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+  color: var(--text);
+  background: var(--card);
+  white-space: nowrap;
+}
+.hdr-dot { width: 8px; height: 8px; border-radius: var(--r-pill); background: var(--text-muted); flex: 0 0 auto; }
+.hdr-dot.is-operational { background: var(--success); }
+.hdr-dot.is-degraded { background: var(--amber); }
+.hdr-dot.is-unavailable { background: var(--text-muted); }
+.hdr-mode { background: var(--soft-unknown); color: var(--green-dark); font-weight: var(--fw-medium); }
+
+.hdr-clock { font-size: var(--fs-xs); color: var(--text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.hdr-bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+}
+.hdr-bell:hover { background: var(--bg); }
+.hdr-bell-badge {
+  position: absolute;
+  top: -6px; right: -6px;
+  min-width: 18px; height: 18px;
+  padding: 0 4px;
+  border-radius: var(--r-pill);
+  background: var(--red);
+  color: #fff;
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-toggle {
+  display: none;
+  width: 36px; height: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Sidebar */
+.app-sidebar {
+  position: fixed;
+  top: var(--header-h);
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--card);
+  border-right: 1px solid var(--border);
+  padding: var(--sp-4) var(--sp-3);
+  overflow-y: auto;
+  z-index: 900;
+}
+.app-sidebar ul { list-style: none; margin: 0; padding: 0; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  color: var(--text);
+  text-decoration: none;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  margin-bottom: var(--sp-1);
+}
+.nav-item:hover { background: var(--bg); }
+.nav-item.is-active { background: var(--green-dark); color: #fff; }
+.nav-item.is-active .nav-icon { color: #fff; }
+.nav-icon { width: var(--icon-md); height: var(--icon-md); flex: 0 0 auto; color: var(--teal); display: inline-flex; }
+.nav-label { white-space: nowrap; }
+
+.scrim { display: none; }
+
+/* Main content */
+.app-main {
+  margin-left: var(--sidebar-w);
+  margin-top: var(--header-h);
+  padding: var(--sp-5);
+}
+#view { max-width: var(--content-max); margin: 0 auto; }
+
+/* ===== Demo banner (S-3) ===== */
+.demo-banner {
+  max-width: var(--content-max);
+  margin: 0 auto var(--sp-5);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--soft-unknown);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+.demo-banner strong { color: var(--green-dark); }
+
+/* ===== Cards / generic surfaces ===== */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  padding: var(--sp-5);
+}
+
+.page-header { margin-bottom: var(--sp-5); }
+.page-title { font-size: var(--fs-2xl); font-weight: var(--fw-semibold); color: var(--green-dark); }
+.page-subtitle { color: var(--text-muted); font-size: var(--fs-md); margin-top: var(--sp-1); }
+
+/* Metric card grid */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-4);
+}
+
+/* Status badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 2px var(--sp-2);
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+}
+.status-badge .sb-dot { width: 8px; height: 8px; border-radius: var(--r-pill); flex: 0 0 auto; }
+.status-badge.is-normal   { background: var(--soft-normal);   color: var(--success); border-color: var(--success); }
+.status-badge.is-normal   .sb-dot { background: var(--success); }
+.status-badge.is-warning  { background: var(--soft-warning);  color: var(--amber);   border-color: var(--amber); }
+.status-badge.is-warning  .sb-dot { background: var(--amber); }
+.status-badge.is-critical { background: var(--soft-critical); color: var(--red);     border-color: var(--red); }
+.status-badge.is-critical .sb-dot { background: var(--red); }
+.status-badge.is-unknown  { background: var(--soft-unknown);  color: var(--text-muted); border-color: var(--border); }
+.status-badge.is-unknown  .sb-dot { background: var(--text-muted); }
+
+/* Tables scroll inside their card (AC-8) */
+.table-scroll { overflow-x: auto; }
+table.data-table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); }
+table.data-table th, table.data-table td {
+  text-align: left;
+  padding: var(--sp-3);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+table.data-table th { color: var(--text-muted); font-weight: var(--fw-semibold); }
+
+/* Not-found view */
+.not-found { text-align: center; padding: var(--sp-7) var(--sp-4); }
+
+/* ===== 3.4 Responsive ===== */
+@media (max-width: 1024px) {
+  .nav-toggle { display: inline-flex; }
+  .app-sidebar {
+    width: var(--sidebar-w-collapsed);
+    padding: var(--sp-4) var(--sp-2);
+  }
+  .app-sidebar .nav-label { display: none; }
+  .app-main { margin-left: var(--sidebar-w-collapsed); }
+  /* overlay drawer when opened */
+  .app-sidebar.is-open {
+    width: var(--sidebar-w);
+    padding: var(--sp-4) var(--sp-3);
+    z-index: 1100;
+  }
+  .app-sidebar.is-open .nav-label { display: inline; }
+  .scrim.is-open {
+    display: block;
+    position: fixed;
+    inset: var(--header-h) 0 0 0;
+    background: rgba(32,41,35,0.4);
+    z-index: 1050;
+  }
+  .metric-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .app-sidebar {
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+    border-right: none;
+  }
+  .app-sidebar .nav-label { display: none; }
+  .app-main { margin-left: 0; }
+  .app-sidebar.is-open {
+    width: var(--sidebar-w);
+    padding: var(--sp-4) var(--sp-3);
+    border-right: 1px solid var(--border);
+  }
+  .app-sidebar.is-open .nav-label { display: inline; }
+  .metric-grid { grid-template-columns: 1fr; }
+  .app-header { padding: 0 var(--sp-3); }
+}
+
+/* ===== 3.5 Print ===== */
+@media print {
+  .app-header, .app-sidebar, .scrim, .nav-toggle, .hdr-bell { display: none !important; }
+  .app-main { margin: 0; padding: 0; }
+  body { background: #fff; }
+  .card { box-shadow: none; border-color: #ccc; }
+}
